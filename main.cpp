@@ -21,15 +21,10 @@ size_t userCount[24];
 map<string, int> CountOfEachAd[24];
 map<string, int> Users[24];
 
+//fliters
+char** fliter;
 //flits the ip you want
 bool is_invalid(const char *ip){
-    //fliters
-    static const char* fliter[] = {
-        "140.113",
-        "103.31",
-        nullptr
-    };
-
     for (int i=0;fliter[i];i++){
         bool found = true;
         for (int j=0;*(fliter[i]+j) && *(ip+j);j++)
@@ -84,16 +79,17 @@ int readfile(int date, int page){
 
 
 int main (int argc, char** argv){
-    //readfile return 1 if file is not exist
+    fliter = argv+2;
     {
-        if (argc != 2){
-            cerr << "error: one argument needed." << endl;
+        if (argc < 2){
+            cerr << "error: at least one argument needed." << endl;
             return 1;
         }
         stringstream ss;
         ss << argv[1];
         int date;
         ss >> date;
+        //readfile return 1 if file is not exist
         for (int i=0; !readfile(date, i); i+=100);
     }
 
