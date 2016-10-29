@@ -44,10 +44,8 @@ bool is_invalid(const char *ip){
 
 //get host name of an URL
 string gethostname(const string& str){
-    size_t i = str.find("://");
-    if (i != string::npos) i += 3;
-    else i = 0;
-    while (str[i]!= '/' && str[i]!= '\0') i++;
+    size_t i = str.find('?');
+    if (i == string::npos) i = str.size();
     string tmp;
     for (size_t j=0;j<i;j++) tmp+= str[j];
     return tmp;
