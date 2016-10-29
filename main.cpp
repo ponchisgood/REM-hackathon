@@ -3,6 +3,7 @@
 #include "rapidjson/stringbuffer.h"
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -15,10 +16,9 @@ using namespace rapidjson;
 using namespace std;
 
 
-size_t userCount;
-size_t adCount = 5;
-map<string, int> CountOfEachAd;
-set<string> Users;
+size_t userCount[24];
+map<string, int> CountOfEachAd[24];
+map<string, int> Users[24];
 
 //flits the ip you want
 bool is_invalid(const char *ip){
@@ -66,13 +66,16 @@ int readfile(int date, int page){
     d.Parse(tmp.c_str());
     if (d.IsNull()) return 1;
     for (size_t i=0;i<d["results"].Size();i++){
-        Users.insert(d["results"][i]["user"].GetString());
-        userCount ++;
-        if (d["results"][i]["ip"].IsNull()) continue;
+        stringstream ss;
+        ss << d["results"][i]["start_time"].GetString();
+        int Time;
+        (ss.ignore(20, 'T')) >> Time;
+        Users[Time][d["results"][i]["user"].GetString()] ++;
+        userCount[Time] ++;
         const char* ip = d["results"][i]["ip"].GetString();
         if (!is_invalid(ip)){
-            if (d["results"][i]["page"].IsNull()) CountOfEachAd[""] ++;
-            else CountOfEachAd[gethostname(d["results"][i]["page"].GetString())] ++;
+            if (d["results"][i]["page"].IsNull()) CountOfEachAd[Time][""] ++;
+            else CountOfEachAd[Time][gethostname(d["results"][i]["page"].GetString())] ++;
         }
     }
     file.close();
@@ -84,32 +87,45 @@ int main (int argc, char** argv){
     //readfile return 0 if file is not exist
     for (int i=0;readfile(20161028, i);i+=100);
 
-    vector<pair<int, string> > v;
-    for (auto &x : CountOfEachAd){
-        //cout << '"' << x.first << '"' << " " << x.second << " times" << endl;
-        v.push_back({x.second, x.first});
-    }
-    sort(v.begin(), v.end());
+    vector<pair<int, string> > v[24];
+    for (int i=0;i<24;i++)
+        for (auto &x : CountOfEachAd[i])
+            v[i].push_back({x.second, x.first});
+    for (int i=0;i<24;i++)
+        sort(v[i].begin(), v[i].end());
+
     StringBuffer s;
     Writer<StringBuffer> writer(s);
+
     writer.StartObject();
-    writer.Key("count");
-    writer.Uint(5);
-    writer.Key("users");
-    writer.Uint(userCount);
-    writer.Key("ads");
+    writer.Key("seg");
     writer.StartArray();
-    for (int i=0;i<5;i++){
-        if (v.size() < 1u + i) continue;
+    for (int i=0;i<24;i++){
         writer.StartObject();
-        writer.Key("page");
-        writer.String(v[v.size()-i-1].second.c_str());
         writer.Key("users");
-        writer.Uint(v[v.size()-i-1].first);
+        writer.Uint(userCount[i]);
+        writer.Key("ads");
+        writer.StartArray();
+        for (int j=0;j<5;j++){
+            if (v[i].size() < 1u + j) continue;
+            writer.StartObject();
+            writer.Key("page");
+            writer.String(v[i][v[i].size()-j-1].second.c_str());
+            writer.Key("users");
+            writer.Uint(v[i][v[i].size()-j-1].first);
+            writer.EndObject();
+        }
+        writer.EndArray();
         writer.EndObject();
     }
     writer.EndArray();
     writer.EndObject();
 
     cout << s.GetString() << endl;
+
+    for (int i=0;i<24;i++){
+        cout << i << " o'clock:" << endl;
+        for (auto &x : Users[i]) cout << ' ' << '(' << x.first << ',' << x.second << ')';
+        cout << endl;
+    }
 }
