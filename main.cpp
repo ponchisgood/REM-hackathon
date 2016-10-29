@@ -16,6 +16,7 @@ using namespace rapidjson;
 using namespace std;
 
 
+//array of 24 element due to 24 hours a day
 size_t userCount[24];
 map<string, int> CountOfEachAd[24];
 map<string, int> Users[24];
@@ -42,7 +43,7 @@ bool is_invalid(const char *ip){
 }
 
 
-//get host name of an URL
+//remove some operator of an URL
 string gethostname(const string& str){
     size_t i = str.find('?');
     if (i == string::npos) i = str.size();
@@ -53,16 +54,17 @@ string gethostname(const string& str){
 
 
 //read a file and store in global variables
+//returns 1 if something wrong
 int readfile(int date, int page){
     stringstream filename;
     filename << "data/" << date << "-page" << page << ".json";
     fstream file(filename.str(), fstream::in);
-    if (!file.is_open()) return 0;
+    if (!file.is_open()) return 1;
     string tmp;
     for (int c; (c = file.get())!= EOF;) tmp+= c;
     Document d;
     d.Parse(tmp.c_str());
-    if (d.IsNull()) return 1;
+    if (d.IsNull()) return 0;
     for (size_t i=0;i<d["results"].Size();i++){
         stringstream ss;
         ss << d["results"][i]["start_time"].GetString();
@@ -77,13 +79,23 @@ int readfile(int date, int page){
         }
     }
     file.close();
-    return 1;
+    return 0;
 }
 
 
 int main (int argc, char** argv){
-    //readfile return 0 if file is not exist
-    for (int i=0;readfile(20161028, i);i+=100);
+    //readfile return 1 if file is not exist
+    {
+        if (argc != 2){
+            cerr << "error: one argument needed." << endl;
+            return 1;
+        }
+        stringstream ss;
+        ss << argv[1];
+        int date;
+        ss >> date;
+        for (int i=0; !readfile(date, i); i+=100);
+    }
 
     vector<pair<int, string> > v[24];
     for (int i=0;i<24;i++)
@@ -100,7 +112,7 @@ int main (int argc, char** argv){
     writer.StartArray();
     for (int i=0;i<24;i++){
         writer.StartObject();
-        writer.Key("users");
+        writer.Key("count");
         writer.Uint(userCount[i]);
         writer.Key("ads");
         writer.StartArray();
@@ -120,10 +132,10 @@ int main (int argc, char** argv){
     writer.EndObject();
 
     cout << s.GetString() << endl;
-
+/*
     for (int i=0;i<24;i++){
         cout << i << " o'clock:" << endl;
         for (auto &x : Users[i]) cout << ' ' << '(' << x.first << ',' << x.second << ')';
         cout << endl;
-    }
+    }*/
 }
