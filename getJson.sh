@@ -16,6 +16,6 @@ else
             echo "$page"
             curl -H "Authorization: token a04fdfceb19325e627514bbcb551ef1f78fdbb18" "https://meichu.tagtoo.com.tw/pageviews/?page=$page&date=20161028" > "data/20161028-page$page.json"
         fi
-        page="$(($page+1))"
+        page="$(($page+100))"
     done
 fi
