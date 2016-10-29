@@ -1,0 +1,155 @@
+<div id="page-wrapper">
+
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">
+                    Current AD <small>Based On User Statistics</small>
+                    <button class="btn btn-primary btn-sm" style="position: absolute; right: 0;" id='change'>skip video</button>
+                </h1>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="list-group" id="ads">
+                    <% @ads.each_with_index do |ad, index| %>
+                        <% next if index == 0 %>
+                        <li class="list-group-item">
+                            <%= video_tag ad['video'], muted: true, style: 'display: none' %>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <%= image_tag ad['img'] %>
+                                </div>
+                                <div class="col-md-8">
+                                    <h4><%= ad['title'] %> <span class="label label-default"><%= ad['tags'].first %></span></h4>
+                                    <div class="adc">
+                                        <p><%= ad['discription'] %></p>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow=<%= ad['user'].to_s %> aria-valuemin="0" aria-valuemax=<%= @user_count.to_s %> style="width: <%= ad['user']*100/@user_count %>%">
+                                                <%= ad['user'].to_s+"/"+@user_count.to_s %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    <% end %>
+                </ul>
+            </div>
+            <div class="col-md-6" id="currentAd">
+                <div class="row">
+                    <%= video_tag @ads.first['video'], autoplay: true, muted: true%>
+                    <%= image_tag @ads.first['img'], style: 'display: none' %>
+                </div>
+                <div class="row">
+                    <h3><%= @ads.first['title'] %> <span class="label label-default"><%= @ads.first['tags'].first %></span></h3>
+                    <div class="adc">
+                        <p><%= @ads.first['discription'] %></p>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow=<%= @ads.first['user'].to_s %> aria-valuemin="0" aria-valuemax=<%= @user_count.to_s %> style="width: <%= @ads.first['user']*100/@user_count %>%">
+                                <%= @ads.first['user'].to_s+"/"+@user_count.to_s %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="page-header">
+                    User Statistics <small>Real-time Data</small>
+                </h1>
+                <div id="user-chart"></div>
+            </div>
+        </div>
+        <!-- /.row -->
+
+    </div>
+    <!-- /.container-fluid -->
+
+</div>
+<!-- /#page-wrapper -->
+
+<script>
+
+$(document).ready(function(){
+
+    var ad = $('#currentAd video');
+    var t0 = $('#currentAd h3');
+    var c0 = $('#currentAd .adc');
+    var i0 = $('#currentAd img');
+
+    var ad1 = $('#ads li:nth-child(1)');
+    var v1 = $('#ads li:nth-child(1) video');
+    var t1 = $('#ads li:nth-child(1) h4');
+    var c1 = $('#ads li:nth-child(1) .adc');
+    var i1 = $('#ads li:nth-child(1) img');
+    
+    var ad2 = $('#ads li:nth-child(2)');
+    var v2 = $('#ads li:nth-child(2) video');
+    var t2 = $('#ads li:nth-child(2) h4');
+    var c2 = $('#ads li:nth-child(2) .adc');
+    var i2 = $('#ads li:nth-child(2) img');
+
+    var ad3 = $('#ads li:nth-child(3)');
+    var v3 = $('#ads li:nth-child(3) video');
+    var t3 = $('#ads li:nth-child(3) h4');
+    var c3 = $('#ads li:nth-child(3) .adc');
+    var i3 = $('#ads li:nth-child(3) img');
+
+    var ad4 = $('#ads li:nth-child(4)');
+    var v4 = $('#ads li:nth-child(4) video');
+    var t4 = $('#ads li:nth-child(4) h4');
+    var c4 = $('#ads li:nth-child(4) .adc');
+    var i4 = $('#ads li:nth-child(4) img');
+    
+    var change = $('#change');
+
+    function skip_video() {
+        
+        var tmp = ad[0].src;
+        ad[0].src = v1[0].src;
+        v1[0].src = v2[0].src;
+        v2[0].src = v3[0].src;
+        v3[0].src = v4[0].src;
+        v4[0].src = tmp;
+        ad.load();
+
+        tmp = t0.html();
+        t0.html(t1.html());
+        t1.html(t2.html());
+        t2.html(t3.html());
+        t3.html(t4.html());
+        t4.html(tmp);
+
+        tmp = c0.html();
+        c0.html(c1.html());
+        c1.html(c2.html());
+        c2.html(c3.html());
+        c3.html(c4.html());
+        c4.html(tmp);
+
+        tmp = i0.attr('src');
+        i0.attr('src', i1.attr('src'));
+        i1.attr('src', i2.attr('src'));
+        i2.attr('src', i3.attr('src'));
+        i3.attr('src', i4.attr('src'));
+        i4.attr('src', tmp);
+
+    }
+
+
+    ad.on('ended', function(){
+        skip_video();
+    });
+    change.click(function(){
+        skip_video();
+    });
+
+});
+</script>

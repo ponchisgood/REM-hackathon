@@ -1,0 +1,21 @@
+// Place all the styles related to the main controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+video {
+    width: 100%;
+    height: auto;
+}
+
+.progress-bar-default {
+    background-color: rgb(119,119,119) !important;
+}
+
+.bar-tag {
+    margin-bottom: 20px;
+}
+
+.list-group-item img {
+    width: 100%;
+    height: auto;
+}
