@@ -3,7 +3,8 @@
 
 if [ "$1" == "rm" ]
 then
-    rm $(ls -l data | awk '$5 == 302{print $9}')
+    cd data/transactions
+    rm $(ls -l | awk '$5 == 50{print $9}')
 else
 
     page="$1"

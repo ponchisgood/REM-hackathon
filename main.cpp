@@ -127,11 +127,15 @@ int main (int argc, char** argv){
     writer.EndArray();
     writer.EndObject();
 
-    cout << s.GetString() << endl;
-/*
+    fstream file("output/pageview.json", fstream::out);
+    file << s.GetString() << endl;
+    file.close();
+
     for (int i=0;i<24;i++){
-        cout << i << " o'clock:" << endl;
-        for (auto &x : Users[i]) cout << ' ' << '(' << x.first << ',' << x.second << ')';
-        cout << endl;
-    }*/
+        stringstream ss;
+        ss << "output/user" << i << ".out";
+        file.open(ss.str(), fstream::out);
+        for (auto &x : Users[i]) file << x.first << endl;
+        file.close();
+    }
 }
