@@ -1,3 +1,26 @@
+<style>
+
+.axis--x path {
+    display: none;
+}
+
+.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+}
+
+iframe {
+    border: none;
+    width: 100%;
+}
+
+* {
+    text-overflow: clip;
+}
+</style>
+
+
 <div id="page-wrapper">
 
     <div class="container-fluid">
@@ -7,7 +30,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">
-                    Current AD <small>Based On User Statistics</small>
+                    Current AD <small>Based On User Statistics ( 2016-10-28 14:00, User-count: <%= @user_count %> )</small>
                     <button class="btn btn-primary btn-sm" style="position: absolute; right: 0;" id='change'>skip video</button>
                 </h1>
             </div>
@@ -20,18 +43,16 @@
                     <% @ads.each_with_index do |ad, index| %>
                         <% next if index == 0 %>
                         <li class="list-group-item">
-                            <%= video_tag ad['video'], muted: true, style: 'display: none' %>
                             <div class="row">
                                 <div class="col-md-4">
-                                    <%= image_tag ad['img'] %>
+                                    <iframe src="" scrolling='no' style="height: 5em"></iframe>
                                 </div>
                                 <div class="col-md-8">
-                                    <h4><%= ad['title'] %> <span class="label label-default"><%= ad['tags'].first %></span></h4>
                                     <div class="adc">
-                                        <p><%= ad['discription'] %></p>
+                                        <p></p>
                                         <div class="progress">
-                                            <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow=<%= ad['user'].to_s %> aria-valuemin="0" aria-valuemax=<%= @user_count.to_s %> style="width: <%= ad['user']*100/@user_count %>%">
-                                                <%= ad['user'].to_s+"/"+@user_count.to_s %>
+                                            <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow=<%= ad['users'].to_s %> aria-valuemin="0" aria-valuemax=<%= @user_count.to_s %> style="width: <%= ad['users']*500/@user_count %>%">
+                                                <%= ad['users'].to_s %>
                                             </div>
                                         </div>
                                     </div>
@@ -40,19 +61,18 @@
                         </li>
                     <% end %>
                 </ul>
+                <h3><small>IP Filter: 1XX.XXX.XXX.XXX</small></h3>
             </div>
             <div class="col-md-6" id="currentAd">
                 <div class="row">
-                    <%= video_tag @ads.first['video'], autoplay: true, muted: true%>
-                    <%= image_tag @ads.first['img'], style: 'display: none' %>
+                    <iframe src="" scrolling='no' style="height: 25em"></iframe>
                 </div>
                 <div class="row">
-                    <h3><%= @ads.first['title'] %> <span class="label label-default"><%= @ads.first['tags'].first %></span></h3>
                     <div class="adc">
-                        <p><%= @ads.first['discription'] %></p>
+                        <p><%= @ads.first['page'] %></p>
                         <div class="progress">
-                            <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow=<%= @ads.first['user'].to_s %> aria-valuemin="0" aria-valuemax=<%= @user_count.to_s %> style="width: <%= @ads.first['user']*100/@user_count %>%">
-                                <%= @ads.first['user'].to_s+"/"+@user_count.to_s %>
+                            <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow=<%= @ads.first['users'].to_s %> aria-valuemin="0" aria-valuemax=<%= @user_count.to_s %> style="width: <%= @ads.first['users']*500/@user_count %>%">
+                                <%= @ads.first['users'].to_s %>
                             </div>
                         </div>
                     </div>
@@ -62,9 +82,10 @@
         <div class="row">
             <div class="col-md-12">
                 <h1 class="page-header">
-                    User Statistics <small>Real-time Data</small>
+                    User Statistics <small>2016-10-28 ~ 2016-10-29 ( Top-5 ADs )</small>
                 </h1>
                 <div id="user-chart"></div>
+                <%#<svg id="graph"></svg>%>
             </div>
         </div>
         <!-- /.row -->
@@ -75,57 +96,82 @@
 </div>
 <!-- /#page-wrapper -->
 
+<%#<script src="https://d3js.org/d3-array.v1.min.js"></script>%>
+<%#<script src="https://d3js.org/d3-collection.v1.min.js"></script>%>
+<%#<script src="https://d3js.org/d3-color.v1.min.js"></script>%>
+<%#<script src="https://d3js.org/d3-format.v1.min.js"></script>%>
+<%#<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>%>
+<%#<script src="https://d3js.org/d3-time.v1.min.js"></script>%>
+<%#<script src="https://d3js.org/d3-time-format.v2.min.js"></script>%>
+<%#<script src="https://d3js.org/d3-scale.v1.min.js"></script>%>
+<%#<script src="https://d3js.org/d3-path.v1.min.js"></script>%>
+<%#<script src="https://d3js.org/d3-shape.v1.min.js"></script>%>
+<%#<script src="https://d3js.org/d3-axis.v1.min.js"></script>%>
+<%#<script src="https://d3js.org/d3-array.v1.min.js"></script>%>
+
 <script>
 
 $(document).ready(function(){
 
-    var ad = $('#currentAd video');
-    var t0 = $('#currentAd h3');
+    <%#var ad = $('#currentAd video');%>
+    <%#var t0 = $('#currentAd h3');%>
     var c0 = $('#currentAd .adc');
-    var i0 = $('#currentAd img');
+    <%#var i0 = $('#currentAd img');%>
+    var f0 = $('#currentAd iframe');
+    var p0 = $('#currentAd p');
 
     var ad1 = $('#ads li:nth-child(1)');
-    var v1 = $('#ads li:nth-child(1) video');
-    var t1 = $('#ads li:nth-child(1) h4');
+    <%#var v1 = $('#ads li:nth-child(1) video');%>
+    <%#var t1 = $('#ads li:nth-child(1) h4');%>
     var c1 = $('#ads li:nth-child(1) .adc');
-    var i1 = $('#ads li:nth-child(1) img');
+    <%#var i1 = $('#ads li:nth-child(1) img');%>
+    var f1 = $('#ads li:nth-child(1) iframe');
+    var p1 = $('#ads li:nth-child(1) p');
     
     var ad2 = $('#ads li:nth-child(2)');
-    var v2 = $('#ads li:nth-child(2) video');
-    var t2 = $('#ads li:nth-child(2) h4');
+    <%#var v2 = $('#ads li:nth-child(2) video');%>
+    <%#var t2 = $('#ads li:nth-child(2) h4');%>
     var c2 = $('#ads li:nth-child(2) .adc');
-    var i2 = $('#ads li:nth-child(2) img');
+    <%#var i2 = $('#ads li:nth-child(2) img');%>
+    var f2 = $('#ads li:nth-child(2) iframe');
+    var p2 = $('#ads li:nth-child(2) p');
 
     var ad3 = $('#ads li:nth-child(3)');
-    var v3 = $('#ads li:nth-child(3) video');
-    var t3 = $('#ads li:nth-child(3) h4');
+    <%#var v3 = $('#ads li:nth-child(3) video');%>
+    <%#var t3 = $('#ads li:nth-child(3) h4');%>
     var c3 = $('#ads li:nth-child(3) .adc');
-    var i3 = $('#ads li:nth-child(3) img');
+    <%#var i3 = $('#ads li:nth-child(3) img');%>
+    var f3 = $('#ads li:nth-child(3) iframe');
+    var p3 = $('#ads li:nth-child(3) p');
 
     var ad4 = $('#ads li:nth-child(4)');
-    var v4 = $('#ads li:nth-child(4) video');
-    var t4 = $('#ads li:nth-child(4) h4');
+    <%#var v4 = $('#ads li:nth-child(4) video');%>
+    <%#var t4 = $('#ads li:nth-child(4) h4');%>
     var c4 = $('#ads li:nth-child(4) .adc');
-    var i4 = $('#ads li:nth-child(4) img');
+    <%#var i4 = $('#ads li:nth-child(4) img');%>
+    var f4 = $('#ads li:nth-child(4) iframe');
+    var p4 = $('#ads li:nth-child(4) p');
     
     var change = $('#change');
 
+    var timeout;
+
     function skip_video() {
         
-        var tmp = ad[0].src;
-        ad[0].src = v1[0].src;
-        v1[0].src = v2[0].src;
-        v2[0].src = v3[0].src;
-        v3[0].src = v4[0].src;
-        v4[0].src = tmp;
-        ad.load();
+        <%#var tmp = ad[0].src;%>
+        <%#ad[0].src = v1[0].src;%>
+        <%#v1[0].src = v2[0].src;%>
+        <%#v2[0].src = v3[0].src;%>
+        <%#v3[0].src = v4[0].src;%>
+        <%#v4[0].src = tmp;%>
+        <%#ad.load();%>
 
-        tmp = t0.html();
-        t0.html(t1.html());
-        t1.html(t2.html());
-        t2.html(t3.html());
-        t3.html(t4.html());
-        t4.html(tmp);
+        <%#tmp = t0.html();%>
+        <%#t0.html(t1.html());%>
+        <%#t1.html(t2.html());%>
+        <%#t2.html(t3.html());%>
+        <%#t3.html(t4.html());%>
+        <%#t4.html(tmp);%>
 
         tmp = c0.html();
         c0.html(c1.html());
@@ -134,22 +180,242 @@ $(document).ready(function(){
         c3.html(c4.html());
         c4.html(tmp);
 
-        tmp = i0.attr('src');
-        i0.attr('src', i1.attr('src'));
-        i1.attr('src', i2.attr('src'));
-        i2.attr('src', i3.attr('src'));
-        i3.attr('src', i4.attr('src'));
-        i4.attr('src', tmp);
+        <%#tmp = i0.attr('src');%>
+        <%#i0.attr('src', i1.attr('src'));%>
+        <%#i1.attr('src', i2.attr('src'));%>
+        <%#i2.attr('src', i3.attr('src'));%>
+        <%#i3.attr('src', i4.attr('src'));%>
+        <%#i4.attr('src', tmp);%>
+
+        tmp = f0.attr('src');
+        f0.attr('src', f1.attr('src'));
+        f1.attr('src', f2.attr('src'));
+        f2.attr('src', f3.attr('src'));
+        f3.attr('src', f4.attr('src'));
+        f4.attr('src', tmp);
+
+        timeout = setTimeout(skip_video, 15000);
 
     }
 
 
-    ad.on('ended', function(){
-        skip_video();
-    });
+    <%#ad.on('ended', function(){%>
+        <%#skip_video();%>
+    <%#});%>
     change.click(function(){
+        clearTimeout(timeout);
         skip_video();
     });
 
+    timeout = setTimeout(skip_video,15000);
+
+
+    var raw_data;
+
+    $.ajax({
+        type: "GET",
+        contentType: "application/json; charset=utf-8",
+        url: 'main/data',
+        dataType: 'json',
+        success: function (data) {
+            <%#draw(data);%>
+            <%#alert(data);%>
+            generate(data.seg);
+        },
+        error: function (result) {
+            error();
+        }
+    });
+
+
+
+    var current_index = 6;
+
+
+
+    function generate(mydata) {
+
+        raw_data = mydata;
+        var result = [];
+
+        mydata.forEach(function(elem, index){
+            var moment = new Object();
+            index += 8;
+            moment.time = '2016-10-28 '+ (index<10 ? '0' : '') + index.toString() + ':00';
+            <%#moment.count = elem.count;%>
+            moment.a = elem.ads[0].users;
+            moment.b = elem.ads[1].users;
+            moment.c = elem.ads[2].users;
+            moment.d = elem.ads[3].users;
+            moment.e = elem.ads[4].users;
+            result.push(moment);
+        });
+
+        Morris.Area({
+            element: 'user-chart',
+            data: result,
+            xkey: 'time',
+            ykeys: ['a','b','c','d','e'],
+            labels: ['1st','2nd','3rd','4th','5th'],
+            pointSize: '0',
+            behaveLikeLine: true,
+            hideHover: false,
+            events: ['2016-10-28 14:00'],
+            hoverCallback: function (index, options, content, row) {
+                current_index = index;
+                
+                return content;
+            }
+            <%#yLabelFormat: function (y) { return y.toString() + 'km'; }%>
+        });
+
+        f0.attr('src', mydata[6].ads[0].page);
+        f1.attr('src', mydata[6].ads[1].page);
+        f2.attr('src', mydata[6].ads[2].page);
+        f3.attr('src', mydata[6].ads[3].page);
+        f4.attr('src', mydata[6].ads[4].page);
+        p0.html(mydata[6].ads[0].page);
+        p1.html(mydata[6].ads[1].page);
+        p2.html(mydata[6].ads[2].page);
+        p3.html(mydata[6].ads[3].page);
+        p4.html(mydata[6].ads[4].page);
+    }
+
+
+
+
+
+    <%#function draw(data) {%>
+
+        <%#var svg = d3.select("#graph"),%>
+        <%#margin = {top: 20, right: 80, bottom: 30, left: 50},%>
+        <%#width = svg.attr("width") - margin.left - margin.right,%>
+        <%#height = svg.attr("height") - margin.top - margin.bottom,%>
+        <%#g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");%>
+
+        <%#var parseTime = d3.timeParse("%Y%m%d");%>
+
+        <%#var x = d3.scaleTime().range([0, width]),%>
+        <%#y = d3.scaleLinear().range([height, 0]),%>
+        <%#z = d3.scaleOrdinal(d3.schemeCategory10);%>
+
+        <%#var line = d3.line()%>
+            <%#.curve(d3.curveBasis)%>
+            <%#.x(function(d) { return x(d.date); })%>
+            <%#.y(function(d) { return y(d.temperature); });%>
+
+        <%#[>d3.tsv("data.tsv", type, function(error, data) {<]%>
+            <%#[>if (error) throw error;<]%>
+
+            <%#var cities = data.columns.slice(1).map(function(id) {%>
+                <%#return {%>
+                    <%#id: id,%>
+                    <%#values: data.map(function(d) {%>
+                        <%#return {date: d.date, temperature: d[id]};%>
+                    <%#})%>
+                <%#};%>
+            <%#});%>
+
+            <%#x.domain(d3.extent(data, function(d) { return d.date; }));%>
+
+            <%#y.domain([%>
+                    <%#d3.min(cities, function(c) { return d3.min(c.values, function(d) { return d.temperature; }); }),%>
+                    <%#d3.max(cities, function(c) { return d3.max(c.values, function(d) { return d.temperature; }); })%>
+            <%#]);%>
+
+            <%#z.domain(cities.map(function(c) { return c.id; }));%>
+
+            <%#g.append("g")%>
+                <%#.attr("class", "axis axis--x")%>
+                <%#.attr("transform", "translate(0," + height + ")")%>
+                <%#.call(d3.axisBottom(x));%>
+
+            <%#g.append("g")%>
+                <%#.attr("class", "axis axis--y")%>
+                <%#.call(d3.axisLeft(y))%>
+                <%#.append("text")%>
+                <%#.attr("transform", "rotate(-90)")%>
+                <%#.attr("y", 6)%>
+                <%#.attr("dy", "0.71em")%>
+                <%#.attr("fill", "#000")%>
+                <%#.text("Temperature, ºF");%>
+
+            <%#var city = g.selectAll(".city")%>
+                <%#.data(cities)%>
+                <%#.enter().append("g")%>
+                <%#.attr("class", "city");%>
+
+            <%#city.append("path")%>
+                <%#.attr("class", "line")%>
+                <%#.attr("d", function(d) { return line(d.values); })%>
+                <%#.style("stroke", function(d) { return z(d.id); });%>
+
+            <%#city.append("text")%>
+                <%#.datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })%>
+                <%#.attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })%>
+                <%#.attr("x", 3)%>
+                <%#.attr("dy", "0.35em")%>
+                <%#.style("font", "10px sans-serif")%>
+                <%#.text(function(d) { return d.id; });%>
+
+        <%#}%>
+        <%#});%>
+
+        <%#function type(d, _, columns) {%>
+            <%#d.date = parseTime(d.date);%>
+            <%#for (var i = 1, n = columns.length, c; i < n; ++i) d[c = columns[i]] = +d[c];%>
+            <%#return d;%>
+        <%#}%>
+
+
+
+
+
+
+        <%#var color = d3.scale.category20b();%>
+        <%#var width = 420,%>
+        <%#barHeight = 20;%>
+
+        <%#var x = d3.scale.linear()%>
+            <%#.range([0, width])%>
+            <%#.domain([0, d3.max(data)]);%>
+
+        <%#var chart = d3.select("#graph")%>
+            <%#.attr("width", width)%>
+            <%#.attr("height", barHeight * data.length);%>
+
+        <%#var bar = chart.selectAll("g")%>
+            <%#.data(data)%>
+            <%#.enter().append("g")%>
+            <%#.attr("transform", function (d, i) {%>
+                <%#return "translate(0," + i * barHeight + ")";%>
+            <%#});%>
+
+        <%#bar.append("rect")%>
+            <%#.attr("width", x)%>
+            <%#.attr("height", barHeight - 1)%>
+            <%#.style("fill", function (d) {%>
+                <%#return color(d)%>
+            <%#})%>
+
+        <%#bar.append("text")%>
+            <%#.attr("x", function (d) {%>
+                <%#return x(d) - 10;%>
+            <%#})%>
+        <%#.attr("y", barHeight / 2)%>
+            <%#.attr("dy", ".35em")%>
+            <%#.style("fill", "white")%>
+            <%#.text(function (d) {%>
+                <%#return d;%>
+            <%#});%>
+    <%#}%>
+
+    <%#function error() {%>
+        <%#console.log("error")%>
+    <%#}%>
+
 });
 </script>
+
+
+
