@@ -65,10 +65,10 @@ int readfile(int date, int page){
         ss << d["results"][i]["start_time"].GetString();
         int Time;
         (ss.ignore(20, 'T')) >> Time;
-        Users[Time][d["results"][i]["user"].GetString()] ++;
-        userCount[Time] ++;
         const char* ip = d["results"][i]["ip"].GetString();
         if (!is_invalid(ip)){
+            Users[Time][d["results"][i]["user"].GetString()] ++;
+            userCount[Time] ++;
             if (d["results"][i]["page"].IsNull()) CountOfEachAd[Time][""] ++;
             else CountOfEachAd[Time][gethostname(d["results"][i]["page"].GetString())] ++;
         }

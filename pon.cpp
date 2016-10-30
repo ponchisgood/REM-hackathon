@@ -1,10 +1,13 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include <algorithm>
 #include <iostream>
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
 #include <cstring>
+#include <vector>
 #include <string>
 #include <map>
 #include <unistd.h>
@@ -86,8 +89,55 @@ int main (int argc, char** argv){
         for (int i=0; i<1837; i++)
             readfile(date, i);
     }
-    cout << "Total Products: " << ProductCount << endl;
-    for (auto &x : CountOfEachProduct)
-        cout << "Product \"" << x.first << "\" " << x.second << " times" << endl;
+    {
+        fstream file;
+        vector<pair<int, string> > v;
+        for (auto &x : CountOfEachProduct)
+            v.push_back({x.second, x.first});
+        sort(v.begin(), v.end());
+
+        StringBuffer s;
+        Writer<StringBuffer> writer(s);
+        writer.StartObject();
+        writer.Key("count");
+        writer.Uint(ProductCount);
+        writer.Key("imgs");
+        writer.StartArray();
+
+        for (size_t i=0;i<5;i++){
+            if (v.size() < i + 1) break;
+            cout << v[v.size()-i-1].second << endl;
+            string tmp = "curl -H \"Authorization: token a04fdfceb19325e627514bbcb551ef1f78fdbb18\" \"https://meichu.tagtoo.com.tw/products/";
+            tmp += v[v.size()-i-1].second;
+            tmp += "\" > tmp.json";
+            system(tmp.c_str());
+            file.open("tmp.json", fstream::in);
+            tmp = "";
+            for (int c; (c = file.get())!= EOF; tmp+=c);
+            file.close();
+
+            Document d;
+            d.Parse(tmp.c_str());
+            writer.StartObject();
+            writer.Key("image_url");
+            if (d.HasMember("detail") || d["image_url"].IsNull()) writer.Null();
+            else writer.String(d["image_url"].GetString());
+            writer.Key("title");
+            if (d.HasMember("detail") || d["title"].IsNull()) writer.Null();
+            else writer.String(d["title"].GetString());
+            writer.Key("description");
+            if (d.HasMember("detail") || d["description"].IsNull()) writer.Null();
+            else writer.String(d["description"].GetString());
+            writer.Key("count");
+            writer.Uint(v[v.size()-i-1].first);
+            writer.EndObject();
+        }
+        writer.EndArray();
+        writer.EndObject();
+
+        file.open("output/img.json", fstream::app);
+        file << s.GetString() << endl;
+        file.close();
+    }
 }
 
