@@ -6,6 +6,9 @@ class MainController < ApplicationController
         @user_count = data_hash['seg'][6]['count']
     end
 
+    def tech
+    end
+
 
     def data
         file = File.read(Rails.public_path.join('pageview.json'))

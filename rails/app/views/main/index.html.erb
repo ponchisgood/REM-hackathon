@@ -30,7 +30,7 @@ iframe {
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">
-                    Current AD <small>Based On User Statistics</small>
+                    Current AD <small>Based On User Statistics ( 2016-10-28 14:00, User-count: <%= @user_count %> )</small>
                     <button class="btn btn-primary btn-sm" style="position: absolute; right: 0;" id='change'>skip video</button>
                 </h1>
             </div>
@@ -52,7 +52,7 @@ iframe {
                                         <p></p>
                                         <div class="progress">
                                             <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow=<%= ad['users'].to_s %> aria-valuemin="0" aria-valuemax=<%= @user_count.to_s %> style="width: <%= ad['users']*500/@user_count %>%">
-                                                <%= ad['users'].to_s+"/"+@user_count.to_s %>
+                                                <%= ad['users'].to_s %>
                                             </div>
                                         </div>
                                     </div>
@@ -61,6 +61,7 @@ iframe {
                         </li>
                     <% end %>
                 </ul>
+                <h3><small>IP Filter: 1XX.XXX.XXX.XXX</small></h3>
             </div>
             <div class="col-md-6" id="currentAd">
                 <div class="row">
@@ -71,7 +72,7 @@ iframe {
                         <p><%= @ads.first['page'] %></p>
                         <div class="progress">
                             <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow=<%= @ads.first['users'].to_s %> aria-valuemin="0" aria-valuemax=<%= @user_count.to_s %> style="width: <%= @ads.first['users']*500/@user_count %>%">
-                                <%= @ads.first['users'].to_s+"/"+@user_count.to_s %>
+                                <%= @ads.first['users'].to_s %>
                             </div>
                         </div>
                     </div>
@@ -81,7 +82,7 @@ iframe {
         <div class="row">
             <div class="col-md-12">
                 <h1 class="page-header">
-                    User Statistics <small>2016/10/28</small>
+                    User Statistics <small>2016-10-28 ~ 2016-10-29 ( Top-5 ADs )</small>
                 </h1>
                 <div id="user-chart"></div>
                 <%#<svg id="graph"></svg>%>
@@ -153,6 +154,8 @@ $(document).ready(function(){
     
     var change = $('#change');
 
+    var timeout;
+
     function skip_video() {
         
         <%#var tmp = ad[0].src;%>
@@ -191,6 +194,7 @@ $(document).ready(function(){
         f3.attr('src', f4.attr('src'));
         f4.attr('src', tmp);
 
+        timeout = setTimeout(skip_video, 15000);
 
     }
 
@@ -199,10 +203,11 @@ $(document).ready(function(){
         <%#skip_video();%>
     <%#});%>
     change.click(function(){
+        clearTimeout(timeout);
         skip_video();
     });
 
-
+    timeout = setTimeout(skip_video,15000);
 
 
     var raw_data;

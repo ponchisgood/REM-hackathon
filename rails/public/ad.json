@@ -1,0 +1,58 @@
+{
+    "count": 5,
+    "users": 100,
+    "ads": [
+        {
+            "title": "Medicine",
+            "discription": "China Medicine awesome",
+            "tags": [
+                "Medicine"
+            ],
+            "user": 50,
+            "video": "med.mp4",
+            "img": "med.png"
+        },
+        {
+            "title": "Your Name PV",
+            "discription": "Best movie ever!!",
+            "tags": [
+                "Movie"
+            ],
+            "user": 80,
+            "video": "yourname.mp4",
+            "img": "yourname.png"
+        },
+        {
+            "title": "MSI Computer",
+            "discription": "High C/P Laptop",
+            "tags": [
+                "Computer"
+            ],
+            "user": 40,
+            "video": "msi.mp4",
+            "img": "msi.png"
+        },
+        {
+            "title": "Victory drink",
+            "discription": "gulugulugulu~",
+            "tags": [
+                "Beer"
+            ],
+            "user": 25,
+            "video": "victory.mp4",
+            "img": "victory.png"
+        },
+        {
+            "title": "PxMart",
+            "discription": "Come to buy!!",
+            "tags": [
+                "Shopping"
+            ],
+            "user": 15,
+            "video": "pxmart.mp4",
+            "img": "pxmart.png"
+        }
+    ]
+}
+
+            

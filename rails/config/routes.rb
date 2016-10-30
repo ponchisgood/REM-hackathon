@@ -6,7 +6,8 @@ Rails.application.routes.draw do
     root 'main#index'
 
     get 'main/index'
-      get 'main/data', :defaults => { :format => 'json' }
+    get 'main/data', :defaults => { :format => 'json' }
+    get 'main/tech'
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
